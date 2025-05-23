@@ -22,11 +22,11 @@ import { generateContent, uploadFile } from './api';
 import Chart from './Chart.jsx';
 import functions from './functions';
 import modes from './modes';
-import { timeToSecs } from './utils';
-import VideoPlayer from './VideoPlayer.jsx';
+import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from '@google/generative-ai';
 import UploadArea from './UploadArea';
 import EmbedCode from './EmbedCode';
 import { Theme, themes } from './themes';
+import { VideoAnalysis, Modes, ModeConfig } from './types';
 
 const chartModes = Object.keys(modes.Chart.subModes);
 
@@ -48,6 +48,13 @@ export default function App() {
   const [theme, setTheme] = useState<Theme>('dark-skeuo');
   const [showEmbedCode, setShowEmbedCode] = useState(false);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
+  const [analysis, setAnalysis] = useState<VideoAnalysis | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [videoUrl, setVideoUrl] = useState<string | null>(null);
+  const [analysis, setAnalysis] = useState<VideoAnalysis | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // Apply theme when it changes
@@ -60,23 +67,34 @@ export default function App() {
   }, [theme]);
 
   const handleFileSelect = useCallback(async (file: File) => {
-    setIsLoadingVideo(true);
-    setVideoError(false);
+    setLoading(true);
+    setError(null);
+    setAnalysis(null);
+    const url = URL.createObjectURL(file);
+    setVideoUrl(url);
     
     try {
-      const fileUrl = URL.createObjectURL(file);
-      setVidUrl(fileUrl);
-      setFile(file);
+      const formData = new FormData();
+      formData.append('video', file);
       
-      // Reset any previous analysis
-      setTimecodeList(null);
-      setActiveMode(undefined);
-      setCustomPrompt('');
-    } catch (error) {
-      console.error('Error processing file:', error);
-      setVideoError(true);
+      // Call your API endpoint here
+      // const response = await fetch('/api/analyze', {
+      //   method: 'POST',
+      //   body: formData
+      // });
+      // const data = await response.json();
+      // setAnalysis(data);
+      
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      setAnalysis({
+        summary: 'This is a sample analysis of your video. In a real implementation, this would contain the actual analysis from the API.',
+        timestamps: []
+      });
+    } catch (err) {
+      setError('Failed to analyze video. Please try again.');
     } finally {
-      setIsLoadingVideo(false);
+      setLoading(false);
     }
   }, []);
 
@@ -143,20 +161,20 @@ export default function App() {
     }
   };
 
-  const renderContent = (): React.ReactNode => {
-    if (isLoading) {
-      return <div className="loading">Waiting for model...</div>;
+  const renderContent = (): ReactNode => {
+    if (loading) {
+      return <div className="loading">Analyzing video...</div>;
     }
     
-    if (videoError) {
-      return <div className="error">{videoError}</div>;
+    if (error) {
+      return <div className="error">{error}</div>;
     }
     
-    if (!vidUrl) {
+    if (!analysis) {
       return (
         <UploadArea 
           onFileSelect={handleFileSelect} 
-          isLoading={isLoadingVideo} 
+          isLoading={loading} 
         />
       );
     }
@@ -164,32 +182,21 @@ export default function App() {
     return (
       <div className="analysis-container">
         <div className="video-container">
-          {vidUrl && (
-            <VideoPlayer
-              url={vidUrl}
-              requestedTimecode={requestedTimecode}
-              timecodeList={timecodeList}
-              jumpToTimecode={setRequestedTimecode}
-              isLoadingVideo={isLoadingVideo}
-              videoError={videoError}
+          {videoUrl && (
+            <video 
+              src={videoUrl} 
+              controls 
+              className="video-player"
             />
           )}
         </div>
         <div className="analysis-results">
-          {isLoading ? (
-            <div className="loading">Analyzing video...</div>
-          ) : timecodeList ? (
-            activeMode === 'Table' ? (
-              <table>
-                <thead>
-                  <tr>
-                    <th>Time</th>
-                    <th>Description</th>
-                    <th>Objects</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {timecodeList.map(({time, text, objects}, i) => (
+          <h2>Analysis Results</h2>
+          <p>{analysis.summary}</p>
+          
+          {analysis.timestamps && analysis.timestamps.length > 0 && (
+            <div className="timestamps">
+              <h3>Key Moments</h3>
                     <tr
                       key={i}
                       role="button"

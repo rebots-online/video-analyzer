@@ -91,78 +91,36 @@ export const EmbedCode = ({ videoId, theme = 'dark-skeuomorphic', className = ''
       <style jsx>{`
         .embed-code-container {
           margin: 1.5rem 0;
-          border: 1px solid var(--border);
           border-radius: 8px;
-          overflow: hidden;
-        }
-        
-        .embed-toggle {
-          padding: 0.75rem 1rem;
-          background: var(--card-bg);
-          color: var(--text);
-          cursor: pointer;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          font-weight: 500;
-          transition: background 0.2s;
-        }
-        
-        .embed-toggle:hover {
-          background: var(--highlight);
-        }
-        
-        .embed-content {
-          padding: 1rem;
-          background: var(--card-bg);
-          border-top: 1px solid var(--border);
-        }
-        
-        .code-container {
-          position: relative;
+          padding: 1.5rem;
           margin: 1rem 0;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
-        
-        .embed-textarea {
-          width: 100%;
-          min-height: 100px;
-          padding: 0.75rem;
-          padding-right: 80px;
-          font-family: 'Courier New', monospace;
-          font-size: 0.85rem;
-          background: var(--input-bg);
-          border: 1px solid var(--border);
+        .code-block {
+          position: relative;
+          background: var(--bg-primary);
+          padding: 1rem;
           border-radius: 4px;
-          color: var(--text);
-          resize: vertical;
+          font-family: monospace;
+          overflow-x: auto;
         }
-        
         .copy-button {
           position: absolute;
-          top: 8px;
-          right: 8px;
-          padding: 0.25rem 0.5rem;
-          background: var(--primary);
-          color: white;
+          top: 0.5rem;
+          right: 0.5rem;
+          background: none;
           border: none;
-          border-radius: 4px;
+          color: var(--text-secondary);
           cursor: pointer;
-          font-size: 0.8rem;
-          transition: background 0.2s;
-        }
-        
-        .copy-button:hover {
-          background: var(--primary-hover);
-        }
-        
-        .theme-selector {
-          margin-top: 1rem;
-        }
-        
-        .theme-selector label {
+          padding: 0.25rem;
+          border-radius: 4px;
           display: flex;
           align-items: center;
-          gap: 0.5rem;
+          justify-content: center;
+        }
+        .copy-button:hover {
+          background: var(--bg-hover);
+          color: var(--text-primary);
         }
         
         .theme-select {
